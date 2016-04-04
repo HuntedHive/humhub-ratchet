@@ -64,7 +64,7 @@ class Chat implements MessageComponentInterface
                         $client->send(json_encode($respond));
                     }
                 }
-            } elseif(is_array(json_decode($msg))) {// when send string for editing [in request json] [in response json]
+            } elseif(is_array(json_decode($msg))) { // when send string for editing [in request json] [in response json]
                 $message = json_decode($msg);
                 $value = $this->chat->validateText($message[1]);
                 $value = \yii\helpers\HtmlPurifier::process($value, ['HTML.Allowed' => 'br']);
