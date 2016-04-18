@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use app\models\Content;
 use yii\db\ActiveRecord;
 
 class WBSChat extends ActiveRecord
@@ -22,7 +23,7 @@ class WBSChat extends ActiveRecord
         $this->updated_by = $this->user_id;
         return parent::beforeSave($insert);
     }
-    
+
     /**
      * @return array validation rules for model attributes.
      */
@@ -68,5 +69,80 @@ class WBSChat extends ActiveRecord
     public function getMentions($messages)
     {
         return preg_replace('/[\s]?(@[a-zA-z0-9]+)[\s]/', " <span class='mention'>$1</span> ", $messages);
+    }
+
+
+    /**
+     * After Save Addons
+     *
+     * @return type
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        if ($insert) {
+            $activity = new Activity;
+            $activity->type = "ChatMessage";
+            $activity->module = "chat";
+            $activity->object_id = $this->id;
+            $activity->object_model = "WBSChat";
+            $activity->created_by = $this->created_by;
+            $activity->created_at = date('Y-m-d H:i:s');
+            $activity->updated_by = $this->updated_by;
+            $activity->updated_at = date('Y-m-d H:i:s');
+            $activity->save(false);
+
+            $content = new Content();
+            $content->guid = \Yii::$app->security->generateRandomString(32);
+            $content->object_model = "WBSChat";
+            $content->object_id = $this->id;
+            $content->visibility = 1;
+            $content->sticked = 0;
+            $content->archived = 0;
+            $content->space_id = null;
+            $content->user_id = $this->user_id;
+            $content->created_by = $this->created_by;
+            $content->created_at = date('Y-m-d H:i:s');
+            $content->updated_by = $this->updated_by;
+            $content->updated_at = date('Y-m-d H:i:s');
+            $content->save(false);
+
+            $content2 = new Content();
+            $content2->guid = \Yii::$app->security->generateRandomString(32);
+            $content2->object_model = "Activity";
+            $content2->object_id = $activity->id;
+            $content2->visibility = 1;
+            $content2->sticked = 0;
+            $content2->archived = 0;
+            $content2->space_id = null;
+            $content2->user_id = $this->user_id;
+            $content2->created_by = $this->created_by;
+            $content2->created_at = date('Y-m-d H:i:s');
+            $content2->updated_by = $this->updated_by;
+            $content2->updated_at = date('Y-m-d H:i:s');
+            $content2->save(false);
+
+            $wall = Wall::find()->andWhere(['object_id' => $this->user_id])->one();
+            if(empty($wall)) {
+                $wall->object_model = "User";
+                $wall->object_id = $this->user_id;
+                $wall->created_by = null;
+                $wall->created_at = date('Y-m-d H:i:s');
+                $wall->updated_by = null;
+                $wall->updated_at = date('Y-m-d H:i:s');
+                $wall->save(false);
+            }
+
+            $wallentry = new WallEntry;
+            $wallentry->wall_id = $wall->id;
+            $wallentry->content_id = $content2->id;
+            $wallentry->created_by = $this->created_by;
+            $wallentry->created_at = date('Y-m-d H:i:s');
+            $wallentry->updated_by = $this->updated_by;
+            $wallentry->updated_at = date('Y-m-d H:i:s');
+            $wallentry->save(false);
+        }
+
+        parent::afterSave($insert, $changedAttributes);
+
     }
 }

@@ -56,7 +56,11 @@ class Chat implements MessageComponentInterface
                     $msg = $this->chat->toLink($msg);
                     $msg = $this->chat->toSmile($msg);
                     $user = $this->getUser($from);
-                    $user_name = $user->profile->getName();
+                    if(!empty($user->profile)) {
+                        $user_name = $user->profile->getName();
+                    } else {
+                        $user_name = $user->getName();
+                    }
 
                     foreach ($this->clients as $client) {
                         $span = ($client->id == $from->id)?"<span data-pk='$idMessage' class='message-edit'>:msg</span>" . "<i style='display:none' class='pull-right edit-icon glyphicon glyphicon-edit'</div>":"<span data-pk='$idMessage' class='message-default'>:msg</span>";

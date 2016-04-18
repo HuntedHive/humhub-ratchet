@@ -30,6 +30,10 @@ class Profile extends ActiveRecord
     
     public function getName()
     {
-        return $this->firstname . ' ' . $this->lastname;
+        if(!empty($this->lastname) && !empty($this->firstname)) {
+            return $this->firstname . ' ' . $this->lastname;
+        } else {
+            return "user_" . $this->user_id;
+        }
     }
 }
