@@ -7,11 +7,13 @@ use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use common\models\User;
 use common\models\WBSChatSmile;
+use yii\helpers\Url;
 
 class Chat implements MessageComponentInterface
 {
     protected $clients;
     protected $chat;
+    protected $absoluteUrl;
     
     public function __construct()
     {
@@ -24,6 +26,7 @@ class Chat implements MessageComponentInterface
         parse_str($conn->WebSocket->request->getQuery('data'), $array);
         $user = User::find()->andWhere(['guid' => $array['code']])->one();
         if (!empty($user) && $this->checkUserInConnect($this->clients, $user->id)) {
+            $this->absoluteUrl = $conn->WebSocket->request->getHeader('Origin')->toArray()[0];
             $conn->is_chating = $user->is_chating;
             $conn->id = $user->id;
             $this->clients->attach($conn);
@@ -63,8 +66,14 @@ class Chat implements MessageComponentInterface
                     }
 
                     foreach ($this->clients as $client) {
-                        $span = ($client->id == $from->id)?"<span data-pk='$idMessage' class='message-edit'>:msg</span>" . "<i style='display:none' class='pull-right edit-icon glyphicon glyphicon-edit'</div>":"<span data-pk='$idMessage' class='message-default'>:msg</span>";
-                        $respond = "<div class='mes'>".$user_name.": ".str_replace(":msg", $msg, $span) . "</div>";
+                        $span = ($client->id == $from->id)?"<span data-pk='$idMessage' class='message-edit'>:msg</span>" . "<i style='display:none' class='pull-right edit-icon glyphicon glyphicon-edit'></i></div> <span class='mes-time pull-right'>". date("F j, Y, g:i a", time())  . "</span>":"<span data-pk='$idMessage' class='message-default'>:msg<span class='mes-time pull-right'>". date("F j, Y, g:i a", time())  . "</span></span>";
+                        $photoUser = $this->checkRemoteFile($this->absoluteUrl . "/humhub/uploads/profile_image/" .User::findOne($from->id)->guid. ".jpg")?"http://huntedhive.ua/humhub/uploads/profile_image/" . User::findOne($from->id)->guid. ".jpg":"http://huntedhive.ua/humhub/img/default_user.jpg?cacheId=0";
+                        $respond = "<div class='mes'>
+                                        <div class='profile-size-sm profile-img-navbar'>
+                                            <img id='user-account-image profile-size-sm' class='img-rounded' src='$photoUser' alt='32x32' data-src='holder.js/32x32' height='32' width='32'>
+                                            <div class='profile-overlay-img profile-overlay-img-sm'>
+                                        </div>
+                                </div>" .$user_name. ": ".str_replace(":msg", $msg, $span) . "</div>";
                         $client->send(json_encode($respond));
                     }
                 }
@@ -84,7 +93,25 @@ class Chat implements MessageComponentInterface
             }
         }
     }
-
+    
+    protected function checkRemoteFile($url)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$url);
+        // don't download content
+        curl_setopt($ch, CURLOPT_NOBODY, 1);
+        curl_setopt($ch, CURLOPT_FAILONERROR, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        if(curl_exec($ch)!==FALSE)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
     public function onClose(ConnectionInterface $conn)
     {
         echo "Connection {$conn->id} has reload\n";
