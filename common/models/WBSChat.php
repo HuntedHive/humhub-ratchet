@@ -55,7 +55,7 @@ class WBSChat extends ActiveRecord
     {
         $smiles = WBSChatSmile::find()->all();
         foreach ($smiles as $smile) {
-            $data = preg_replace('/'. quotemeta($smile->symbol) .'/', "<img src='$smile->link'>", $data);
+            $data = preg_replace('/'. quotemeta($smile->symbol) .'/', "<img src='$smile->link' " . 'data-symbol="' . $smile->symbol . '">', $data);
         }
         
         return $data;
