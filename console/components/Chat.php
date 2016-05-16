@@ -14,7 +14,7 @@ class Chat implements MessageComponentInterface
     protected $clients;
     protected $chat;
     protected $absoluteUrl;
-    
+
     public function __construct()
     {
         $this->clients = new \SplObjectStorage;
@@ -35,7 +35,7 @@ class Chat implements MessageComponentInterface
             $conn->close();
         }
     }
-    
+
     protected function checkUserInConnect($users, $checkId)
     {
         foreach ($users as $user) {
@@ -43,10 +43,10 @@ class Chat implements MessageComponentInterface
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     public function onMessage(ConnectionInterface $from, $msg)
     {
         if((bool)$from->is_chating) { //check can user chating
@@ -66,14 +66,28 @@ class Chat implements MessageComponentInterface
                     }
 
                     foreach ($this->clients as $client) {
-                        $span = ($client->id == $from->id)?"<span data-pk='$idMessage' class='message-edit'>:msg</span>" . "<i style='display:none' class='pull-right edit-icon glyphicon glyphicon-edit'></i></div> <span class='mes-time pull-right'>". date("F j, Y, g:i a", time())  . "</span>":"<span data-pk='$idMessage' class='message-default'>:msg<span class='mes-time pull-right'>". date("F j, Y, g:i a", time())  . "</span></span>";
+                        $span = ($client->id == $from->id)?"
+                                                            <span data-pk='$idMessage' class='message-edit'>:msg</span>" .
+                            "<div class='pull-right edit-mes'>
+                                                                <i style='display:none' class='pull-right edit-icon glyphicon glyphicon-edit'></i>
+                                                            </div> 
+                                                            <span class='mes-time pull-right'>"
+                            . date("F j, Y, g:i a", time())  .
+                            "</span>"
+                            :
+                            "<span data-pk='$idMessage' class='message-default'>
+                                                                <span class='mes-time pull-right'>\"
+                                                                . date(\"F j, Y, g:i a\", time())  .
+                                                                \"</span>\"
+                                                                :msg 
+                                                            </span>";
                         $photoUser = $this->checkRemoteFile($this->absoluteUrl . "/humhub/uploads/profile_image/" .User::findOne($from->id)->guid. ".jpg")?"http://huntedhive.ua/humhub/uploads/profile_image/" . User::findOne($from->id)->guid. ".jpg":"http://huntedhive.ua/humhub/img/default_user.jpg?cacheId=0";
                         $respond = "<div class='mes'>
                                         <div class='profile-size-sm profile-img-navbar'>
                                             <img id='user-account-image profile-size-sm' class='img-rounded' src='$photoUser' alt='32x32' data-src='holder.js/32x32' height='32' width='32'>
-                                            <div class='profile-overlay-img profile-overlay-img-sm'>
-                                        </div>
-                                </div>" .$user_name. ": ".str_replace(":msg", $msg, $span) . "</div>";
+                                            <div class='profile-overlay-img profile-overlay-img-sm'></div>
+                                        </div>" . $user_name . " : " . str_replace(':msg', $msg, $span) .
+                            "</div>";
                         $client->send(json_encode($respond));
                     }
                 }
@@ -93,7 +107,7 @@ class Chat implements MessageComponentInterface
             }
         }
     }
-    
+
     protected function checkRemoteFile($url)
     {
         $ch = curl_init();
@@ -111,11 +125,11 @@ class Chat implements MessageComponentInterface
             return false;
         }
     }
-    
+
     public function onClose(ConnectionInterface $conn)
     {
         echo "Connection {$conn->id} has reload\n";
-        
+
         $this->clients->detach($conn);
     }
 
@@ -124,7 +138,7 @@ class Chat implements MessageComponentInterface
         echo "An error has occurred: {$e->getMessage()}\n";
         $conn->close();
     }
-    
+
     protected function getUser($user)
     {
         return User::find()->joinWith("profile")->andWhere(['user.id' => $user->id])->one();
