@@ -8,12 +8,14 @@ use Ratchet\ConnectionInterface;
 use common\models\User;
 use common\models\WBSChatSmile;
 use yii\helpers\Url;
+use serhatozles\simplehtmldom\SimpleHTMLDom;
 
 class Chat implements MessageComponentInterface
 {
     protected $clients;
     protected $chat;
     protected $absoluteUrl;
+    private $imageUrl;
 
     public function __construct()
     {
@@ -58,6 +60,8 @@ class Chat implements MessageComponentInterface
                     $idMessage = $this->saveMessage($msg, $from);
                     $msg = $this->chat->toLink($msg);
                     $msg = $this->chat->toSmile($msg);
+                    $msg = $this->chat->getMentions($msg);
+                    $this->getImage($msg);
                     $user = $this->getUser($from);
                     if(!empty($user->profile)) {
                         $user_name = $user->profile->getName();
@@ -82,6 +86,7 @@ class Chat implements MessageComponentInterface
                                                                 :msg 
                                                             </span>";
                         $photoUser = $this->checkRemoteFile($this->absoluteUrl . "/humhub/uploads/profile_image/" .User::findOne($from->id)->guid. ".jpg")?"http://huntedhive.ua/humhub/uploads/profile_image/" . User::findOne($from->id)->guid. ".jpg":"http://huntedhive.ua/humhub/img/default_user.jpg?cacheId=0";
+                        $span .= (!empty($this->imageUrl))?"<a target='_blank' href='$this->imageUrl'><img src='$this->imageUrl'></a>":'';
                         $respond = "<div class='mes'>
                                         <div class='profile-size-sm profile-img-navbar'>
                                             <img id='user-account-image profile-size-sm' class='img-rounded' src='$photoUser' alt='32x32' data-src='holder.js/32x32' height='32' width='32'>
@@ -99,6 +104,8 @@ class Chat implements MessageComponentInterface
                     $value = $this->chat->toLink($value);
                     $value = $this->chat->toSmile($value);
                     $value = $this->chat->getMentions($value);
+                    $this->getImage($value);
+                    $value .= (!empty($this->imageUrl))?"<a target='_blank' href='$this->imageUrl'><img src='$this->imageUrl'></a>":'';
                     foreach ($this->clients as $client) {
                         $respond = [1 => $value, 0 => $message[0]];
                         $client->send(json_encode($respond));
@@ -106,6 +113,52 @@ class Chat implements MessageComponentInterface
                 }
             }
         }
+    }
+
+    protected function getImage($data)
+    {
+        $htmlText = SimpleHTMLDom::str_get_html($data);
+        $imageText = '';
+        echo $data;
+        if(!empty($htmlText->find('a', 0))) {
+            preg_match('/(http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/', $htmlText->find('a', 0)->href, $matches);
+            if(!empty($matches)) {
+                if($this->ifImage($matches[0])) {
+                    $this->imageUrl = $matches[0];
+                    return;
+                }
+                $url = $matches[0];
+                $htmlContent = SimpleHTMLDom::file_get_html($url);
+                $urlHost = parse_url($url)['scheme'] ."://".parse_url($url)['host'] . "";
+                // Find all images
+                if(isset($htmlContent->find('img', 1)->src)) {
+                    preg_match('/(http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/', $htmlContent->find('img', 1)->src, $matchesContent);
+                    try {
+                        if (empty($matchesContent)) {
+                            if (@getimagesize($urlHost . DIRECTORY_SEPARATOR . $htmlContent->find('img', 1)->src)) {
+                                $this->imageUrl = $urlHost . DIRECTORY_SEPARATOR . $htmlContent->find('img', 1)->src;
+                            }
+                        } else {
+                            if (@getimagesize($htmlContent->find('img', 1)->src)) {
+                                $this->imageUrl = $htmlContent->find('img', 1)->src;
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        //
+                    }
+                }
+            }
+        }
+    }
+
+    protected function ifImage($string)
+    {
+        preg_match('/(http|https|ftp|ftps)\:\/\/([\w\W]*).(png|jpg|gif|jpeg)/', $string, $matches);
+        if(!empty($matches[0])){
+            return true;
+        }
+
+        return false;
     }
 
     protected function checkRemoteFile($url)
