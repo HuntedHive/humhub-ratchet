@@ -119,7 +119,6 @@ class Chat implements MessageComponentInterface
     {
         $htmlText = SimpleHTMLDom::str_get_html($data);
         $imageText = '';
-        echo $data;
         if(!empty($htmlText->find('a', 0))) {
             preg_match('/(http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/', $htmlText->find('a', 0)->href, $matches);
             if(!empty($matches)) {
