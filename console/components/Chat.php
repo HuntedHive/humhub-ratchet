@@ -2,6 +2,7 @@
 
 namespace console\components;
 
+use common\models\HSetting;
 use Yii;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
@@ -28,7 +29,7 @@ class Chat implements MessageComponentInterface
         parse_str($conn->WebSocket->request->getQuery('data'), $array);
         $user = User::find()->andWhere(['guid' => $array['code']])->one();
         if (!empty($user) && $this->checkUserInConnect($this->clients, $user->id)) {
-            $this->absoluteUrl = $conn->WebSocket->request->getHeader('Origin')->toArray()[0];
+            $this->absoluteUrl = HSetting::find()->andFilterWhere(['name' => 'baseUrl'])->one()->value;
             $conn->is_chating = $user->is_chating;
             $conn->id = $user->id;
             $this->clients->attach($conn);
