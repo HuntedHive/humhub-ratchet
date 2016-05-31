@@ -81,9 +81,9 @@ class Chat implements MessageComponentInterface
                             "</span>"
                             :
                             "<span data-pk='$idMessage' class='message-default'>
-                                                                <span class='mes-time pull-right'>\"
-                                                                . date(\"F j, Y, g:i a\", time())  .
-                                                                \"</span>\"
+                                                                <span class='mes-time pull-right'>"
+                                                                . date('F j, Y, g:i a', time()) .
+                                                                "</span>
                                                                 :msg 
                                                             </span>";
                         $photoUser = $this->checkRemoteFile($this->absoluteUrl . "/humhub/uploads/profile_image/" .User::findOne($from->id)->guid. ".jpg")?"http://huntedhive.ua/humhub/uploads/profile_image/" . User::findOne($from->id)->guid. ".jpg":$this->absoluteUrl."/img/default_user.jpg?cacheId=0";
