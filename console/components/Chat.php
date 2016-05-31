@@ -86,7 +86,7 @@ class Chat implements MessageComponentInterface
                                                                 \"</span>\"
                                                                 :msg 
                                                             </span>";
-                        $photoUser = $this->checkRemoteFile($this->absoluteUrl . "/humhub/uploads/profile_image/" .User::findOne($from->id)->guid. ".jpg")?"http://huntedhive.ua/humhub/uploads/profile_image/" . User::findOne($from->id)->guid. ".jpg":"http://huntedhive.ua/humhub/img/default_user.jpg?cacheId=0";
+                        $photoUser = $this->checkRemoteFile($this->absoluteUrl . "/humhub/uploads/profile_image/" .User::findOne($from->id)->guid. ".jpg")?"http://huntedhive.ua/humhub/uploads/profile_image/" . User::findOne($from->id)->guid. ".jpg":$this->absoluteUrl."/img/default_user.jpg?cacheId=0";
                         $span .= (!empty($this->imageUrl))?"<a target='_blank' href='$this->imageUrl'><img width='300' src='$this->imageUrl'></a>":'';
                         $respond = "<div class='mes'>
                                         <div class='profile-size-sm profile-img-navbar'>
