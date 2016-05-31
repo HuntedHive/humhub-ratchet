@@ -34,7 +34,7 @@ class Chat implements MessageComponentInterface
             $conn->id = $user->id;
             $this->clients->attach($conn);
         } else {
-            echo 'Try connect secondery in one user';
+            echo 'Try connect secondary in one user';
             $conn->close();
         }
     }
