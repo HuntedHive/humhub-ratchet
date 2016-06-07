@@ -59,6 +59,7 @@ class Chat implements MessageComponentInterface
                 $msg = $this->chat->validateText($msg);
                 $msg = \yii\helpers\HtmlPurifier::process($msg, ['HTML.Allowed' => 'br']);
                 if (!empty($msg)) {
+                    $this->imageUrl = "";
                     $idMessage = $this->saveMessage($msg, $from);
                     $msg = $this->chat->toLink($msg);
                     $msg = $this->chat->toSmile($msg);
@@ -72,29 +73,42 @@ class Chat implements MessageComponentInterface
                     }
 
                     foreach ($this->clients as $client) {
-                        $span = ($client->id == $from->id)?"
-                                                            <span data-pk='$idMessage' class='message-edit'>:msg</span>" .
-                            "<div class='pull-right edit-mes'>
+                        $span = ($client->id == $from->id)?
+                                                            "<div class='col-xs-12 col-sm-6'>
+                                                            <div class='pull-right edit-mes'>
                                                                 <i style='display:none' class='pull-right edit-icon glyphicon glyphicon-edit'></i>
                                                             </div> 
                                                             <span class='mes-time pull-right'>"
-                            . date("F j, Y, g:i a", time())  .
-                            "</span>"
-                            :
-                            "<span data-pk='$idMessage' class='message-default'>
-                                                                <span class='mes-time pull-right'>"
-                                                                . date('F j, Y, g:i a', time()) .
-                                                                "</span>
-                                                                :msg 
+                                                                .  date("F j, Y, g:i a", time())  .
+                                                            "</span></div>".
+                                                            "<div class='clearfix'></div>
+                                                            <div class='col-xs-12 mes-body'>
+                                                                <span data-pk='$idMessage' class='message-edit editable-click'>
+                                                                    :msg
+                                                                </span>
+                                                            </div>"
+                                                        :
+                                                            "<span data-pk='$idMessage' class='message-default'>
+                                                                <div class='col-xs-12 col-sm-6'>
+                                                                    <span class='mes-time mes-time-other pull-right'>"
+                                                                        . date("F j, Y, g:i a", time())  .
+                                                                    "</span>
+                                                                </div>
+                                                                <div class='clearfix'></div>
+                                                                <div class='col-xs-12 mes-body'>
+                                                                    :msg
+                                                                </div>
                                                             </span>";
+
                         $photoUser = $this->checkRemoteFile($this->absoluteUrl . "/humhub/uploads/profile_image/" .User::findOne($from->id)->guid. ".jpg")?"http://huntedhive.ua/humhub/uploads/profile_image/" . User::findOne($from->id)->guid. ".jpg":$this->absoluteUrl."/img/default_user.jpg?cacheId=0";
-                        $span .= (!empty($this->imageUrl))?"<a target='_blank' href='$this->imageHost'><img width='300' src='$this->imageUrl'></a>":'';
+                        $span .= (!empty($this->imageUrl))?"<a target='_blank' href='$this->imageHost'><img class='img-responsive mes-attachment' width='300' src='$this->imageUrl'></a>":'';
                         $respond = "<div class='mes'>
                                         <div class='profile-size-sm profile-img-navbar'>
                                             <img id='user-account-image profile-size-sm' class='img-rounded' src='$photoUser' alt='32x32' data-src='holder.js/32x32' height='32' width='32'>
                                             <div class='profile-overlay-img profile-overlay-img-sm'></div>
-                                        </div>" . $user_name . " : " . str_replace(':msg', $msg, $span) .
-                            "</div>";
+                                        </div>
+                                        <div class='col-xs-12 col-sm-5 no-padding'>" . $user_name . " :</div> " . str_replace(':msg', $msg, preg_replace('/^\s+|\n|\r|\s+$/m', '', $span)) .
+                                    "</div>";
                         $client->send(json_encode($respond));
                     }
                 }
@@ -136,15 +150,15 @@ class Chat implements MessageComponentInterface
                     preg_match('/(http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/', $htmlContent->find('img', 1)->src, $matchesContent);
                     try {
                         if (empty($matchesContent)) {
-                            if (@getimagesize($urlHost . DIRECTORY_SEPARATOR . $htmlContent->find('img', 1)->src)) {
+//                            if (@getimagesize($urlHost . DIRECTORY_SEPARATOR . $htmlContent->find('img', 1)->src)) {
                                 $this->imageHost = $urlHost;
                                 $this->imageUrl = $urlHost . DIRECTORY_SEPARATOR . $htmlContent->find('img', 1)->src;
-                            }
+//                            }
                         } else {
-                            if (@getimagesize($htmlContent->find('img', 1)->src)) {
+//                            if (@getimagesize($htmlContent->find('img', 1)->src)) {
                                 $this->imageHost = $htmlContent->find('img', 1)->src;
                                 $this->imageUrl = $htmlContent->find('img', 1)->src;
-                            }
+//                            }
                         }
                     } catch (\Exception $e) {
                         //
