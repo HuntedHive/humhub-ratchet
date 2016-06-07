@@ -54,12 +54,13 @@ class Chat implements MessageComponentInterface
     public function onMessage(ConnectionInterface $from, $msg)
     {
         if((bool)$from->is_chating) { //check can user chating
+            $this->imageUrl = "";
             if(is_string(json_decode($msg))) { // when send simple string
                 $msg = json_decode($msg);
                 $msg = $this->chat->validateText($msg);
                 $msg = \yii\helpers\HtmlPurifier::process($msg, ['HTML.Allowed' => 'br']);
                 if (!empty($msg)) {
-                    $this->imageUrl = "";
+
                     $idMessage = $this->saveMessage($msg, $from);
                     $msg = $this->chat->toLink($msg);
                     $msg = $this->chat->toSmile($msg);
@@ -121,10 +122,12 @@ class Chat implements MessageComponentInterface
                     $value = $this->chat->toSmile($value);
                     $value = $this->chat->getMentions($value);
                     $this->getImage($value);
-                    $value .= (!empty($this->imageUrl))?"<a target='_blank' href='$this->imageUrl'><img src='$this->imageUrl'></a>":'';
-                    foreach ($this->clients as $client) {
-                        $respond = [1 => $value, 0 => $message[0]];
-                        $client->send(json_encode($respond));
+                     foreach ($this->clients as $client) {
+                         $span = $value;
+                         $imageUrl = (!empty($this->imageUrl))?"<a target='_blank' href='$this->imageUrl'><img class='img-responsive mes-attachment' src='$this->imageUrl'></a>":'';
+
+                         $respond = [1 => $span . $imageUrl, 0 => $message[0]];
+                         $client->send(json_encode($respond));
                     }
                 }
             }
