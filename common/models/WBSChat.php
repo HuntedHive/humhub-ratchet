@@ -4,6 +4,7 @@ namespace common\models;
 
 use app\models\Content;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 class WBSChat extends ActiveRecord
 {
@@ -17,9 +18,9 @@ class WBSChat extends ActiveRecord
     
     public function beforeSave($insert)
     {
-        $this->created_at = date('Y-m-d H:i;s');
+        $this->created_at = date('Y-m-d H:i:s');
         $this->created_by = $this->user_id;
-        $this->updated_at = date('Y-m-d H:i;s');
+        $this->updated_at = date('Y-m-d H:i:s');
         $this->updated_by = $this->user_id;
         return parent::beforeSave($insert);
     }
@@ -80,15 +81,16 @@ class WBSChat extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         if ($insert) {
+            $now = new Expression('NOW()');
             $activity = new Activity;
             $activity->type = "ChatMessage";
             $activity->module = "chat";
             $activity->object_id = $this->id;
             $activity->object_model = "WBSChat";
             $activity->created_by = $this->created_by;
-            $activity->created_at = date('Y-m-d H:i:s');
+            $activity->created_at = $now;
             $activity->updated_by = $this->updated_by;
-            $activity->updated_at = date('Y-m-d H:i:s');
+            $activity->updated_at = $now;
             $activity->save(false);
 
             $content = new Content();
@@ -101,9 +103,9 @@ class WBSChat extends ActiveRecord
             $content->space_id = null;
             $content->user_id = $this->user_id;
             $content->created_by = $this->created_by;
-            $content->created_at = date('Y-m-d H:i:s');
+            $content->created_at = $now;
             $content->updated_by = $this->updated_by;
-            $content->updated_at = date('Y-m-d H:i:s');
+            $content->updated_at = $now;
             $content->save(false);
 
             $content2 = new Content();
@@ -116,9 +118,9 @@ class WBSChat extends ActiveRecord
             $content2->space_id = null;
             $content2->user_id = $this->user_id;
             $content2->created_by = $this->created_by;
-            $content2->created_at = date('Y-m-d H:i:s');
+            $content2->created_at = $now;
             $content2->updated_by = $this->updated_by;
-            $content2->updated_at = date('Y-m-d H:i:s');
+            $content2->updated_at = $now;
             $content2->save(false);
 
             $wall = Wall::find()->andWhere(['object_id' => $this->user_id])->one();
@@ -136,9 +138,9 @@ class WBSChat extends ActiveRecord
             $wallentry->wall_id = $wall->id;
             $wallentry->content_id = $content2->id;
             $wallentry->created_by = $this->created_by;
-            $wallentry->created_at = date('Y-m-d H:i:s');
+            $wallentry->created_at = $now;
             $wallentry->updated_by = $this->updated_by;
-            $wallentry->updated_at = date('Y-m-d H:i:s');
+            $wallentry->updated_at = $now;
             $wallentry->save(false);
         }
 
