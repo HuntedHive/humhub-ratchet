@@ -83,20 +83,16 @@ class WBSChat extends ActiveRecord
         if ($insert) {
             $now = new Expression('NOW()');
             $activity = new Activity;
-            $activity->type = "ChatMessage";
+            $activity->class = "humhub\modules\chat\activities\ChatMessage";
             $activity->module = "chat";
             $activity->object_id = $this->id;
-            $activity->object_model = "WBSChat";
-            $activity->created_by = $this->created_by;
-            $activity->created_at = $now;
-            $activity->updated_by = $this->updated_by;
-            $activity->updated_at = $now;
+            $activity->object_model = "humhub\modules\chat\models\WBSChat";
             $activity->save(false);
 
             $content = new Content();
             $content->guid = \Yii::$app->security->generateRandomString(32);
-            $content->object_model = "WBSChat";
-            $content->object_id = $this->id;
+            $content->object_model = "humhub\modules\activity\models\Activity";
+            $content->object_id = $activity->id;
             $content->visibility = 1;
             $content->sticked = 0;
             $content->archived = 0;
@@ -108,24 +104,9 @@ class WBSChat extends ActiveRecord
             $content->updated_at = $now;
             $content->save(false);
 
-            $content2 = new Content();
-            $content2->guid = \Yii::$app->security->generateRandomString(32);
-            $content2->object_model = "Activity";
-            $content2->object_id = $activity->id;
-            $content2->visibility = 1;
-            $content2->sticked = 0;
-            $content2->archived = 0;
-            $content2->space_id = null;
-            $content2->user_id = $this->user_id;
-            $content2->created_by = $this->created_by;
-            $content2->created_at = $now;
-            $content2->updated_by = $this->updated_by;
-            $content2->updated_at = $now;
-            $content2->save(false);
-
             $wall = Wall::find()->andWhere(['object_id' => $this->user_id])->one();
             if(empty($wall)) {
-                $wall->object_model = "User";
+                $wall->object_model = "humhub\modules\user\models\User";
                 $wall->object_id = $this->user_id;
                 $wall->created_by = null;
                 $wall->created_at = date('Y-m-d H:i:s');
@@ -136,7 +117,7 @@ class WBSChat extends ActiveRecord
 
             $wallentry = new WallEntry;
             $wallentry->wall_id = $wall->id;
-            $wallentry->content_id = $content2->id;
+            $wallentry->content_id = $content->id;
             $wallentry->created_by = $this->created_by;
             $wallentry->created_at = $now;
             $wallentry->updated_by = $this->updated_by;

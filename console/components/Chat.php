@@ -124,7 +124,7 @@ class Chat implements MessageComponentInterface
                     $this->getImage($value);
                      foreach ($this->clients as $client) {
                          $span = $value;
-                         $imageUrl = (!empty($this->imageUrl))?"<a target='_blank' href='$this->imageUrl'><img class='img-responsive mes-attachment' src='$this->imageUrl'></a>":'';
+                         $imageUrl = (!empty($this->imageUrl))?"<a target='_blank' href='$this->imageUrl'><img class='img-responsive mes-attachment' width='300' src='$this->imageUrl'></a>":'';
                          $respond = [3 => !empty($imageUrl) ,2 => $imageUrl, 1 => $span, 0 => $message[0]];
                          $client->send(json_encode($respond));
                     }
