@@ -29,8 +29,18 @@
  * ```
  */
 return [
-    'Development' => [
-        'path' => 'dev',
+    'Local' => [
+        'path' => 'local',
+        'setWritable' => [
+        ],
+        'setExecutable' => [
+            'yii',
+        ],
+        'setCookieValidationKey' => [
+        ],
+    ],
+    'Staging' => [
+        'path' => 'staging',
         'setWritable' => [
         ],
         'setExecutable' => [
