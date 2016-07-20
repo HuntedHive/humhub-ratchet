@@ -14,8 +14,8 @@ class ServerController extends \yii\console\Controller
 
     public function actionStart()
     {
-        $address = !empty(Yii::$app->params['address'])?Yii::$app->params['address']:'0.0.0.0';
-        $port = !empty(Yii::$app->params['port'])?Yii::$app->params['port']:8080;
+        $address = (isset(Yii::$app->params['address']) && !empty(Yii::$app->params['address']))?Yii::$app->params['address']:'0.0.0.0';
+        $port = (isset(Yii::$app->params['port']) && !empty(Yii::$app->params['port']))?Yii::$app->params['port']:8080;
 
         $server = IoServer::factory(
             new HttpServer(
