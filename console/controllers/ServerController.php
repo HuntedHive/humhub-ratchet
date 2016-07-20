@@ -23,7 +23,8 @@ class ServerController extends \yii\console\Controller
                     new Chat()
                 )
             ),
-            8080
+            $port,
+            $address
         );
 
         $server->run();
