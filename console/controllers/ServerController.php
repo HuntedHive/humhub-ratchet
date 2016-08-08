@@ -8,6 +8,7 @@ use Ratchet\WebSocket\WsServer;
 use Ratchet\Http\HttpServer;
 use common\models\WBSChatSmile;
 use common\models\User;
+use Yii;
 
 class ServerController extends \yii\console\Controller
 {
