@@ -30,7 +30,7 @@
     "config": {
         "process-timeout": 1800,
         "github-oauth": {
-          "github.com": "4616031cfc00fc434d75048e151816eb71f3c69e"
+          "github.com": "<github-oauth-composer-token>"
         }
     },
     "extra": {
