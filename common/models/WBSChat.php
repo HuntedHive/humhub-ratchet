@@ -52,11 +52,11 @@ class WBSChat extends ActiveRecord
         return $msg;
     }
     
-    public function toSmile($data)
+    public function toSmile($absoluteUrl, $data)
     {
         $smiles = WBSChatSmile::find()->all();
         foreach ($smiles as $smile) {
-            $data = preg_replace('/'. quotemeta($smile->symbol) .'/', "<img src='$smile->link' " . 'data-symbol="' . $smile->symbol . '">', $data);
+            $data = preg_replace('/'. quotemeta($smile->symbol) .'/', "<img src='$absoluteUrl/uploads/emojione/$smile->link' " . 'data-symbol="' . $smile->symbol . '">', $data);
         }
         
         return $data;
