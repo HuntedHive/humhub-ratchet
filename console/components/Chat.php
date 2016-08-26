@@ -63,7 +63,7 @@ class Chat implements MessageComponentInterface
 
                     $idMessage = $this->saveMessage($msg, $from);
                     $msg = $this->chat->toLink($msg);
-                    $msg = $this->chat->toSmile($msg);
+                    $msg = $this->chat->toSmile($this->absoluteUrl, $msg);
                     $msg = $this->chat->getMentions($msg);
                     $this->getImage($msg);
                     $user = $this->getUser($from);
@@ -101,7 +101,7 @@ class Chat implements MessageComponentInterface
                                                                 </div>
                                                             </span>";
 
-                        $photoUser = $this->checkRemoteFile($this->absoluteUrl . "/humhub/uploads/profile_image/" .User::findOne($from->id)->guid. ".jpg")?"http://huntedhive.ua/humhub/uploads/profile_image/" . User::findOne($from->id)->guid. ".jpg":$this->absoluteUrl."/img/default_user.jpg?cacheId=0";
+                        $photoUser = $this->checkRemoteFile($this->absoluteUrl . "/uploads/profile_image/" .User::findOne($from->id)->guid. ".jpg")?$this->absoluteUrl . "/uploads/profile_image/" . User::findOne($from->id)->guid. ".jpg":$this->absoluteUrl."/img/default_user.jpg?cacheId=0";
                         $span .= (!empty($this->imageUrl))?"<a target='_blank' href='$this->imageHost'><img class='img-responsive mes-attachment' width='300' src='$this->imageUrl'></a>":'';
                         $respond = "<div class='mes'>
                                         <div class='profile-size-sm profile-img-navbar'>
