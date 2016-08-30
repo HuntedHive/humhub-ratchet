@@ -119,7 +119,7 @@ class Chat implements MessageComponentInterface
                 $value = \yii\helpers\HtmlPurifier::process($value, ['HTML.Allowed' => 'br']);
                 if (!empty($value)) {
                     $value = $this->chat->toLink($value);
-                    $value = $this->chat->toSmile($value);
+                    $value = $this->chat->toSmile($this->absoluteUrl, $value);
                     $value = $this->chat->getMentions($value);
                     $this->getImage($value);
                      foreach ($this->clients as $client) {
