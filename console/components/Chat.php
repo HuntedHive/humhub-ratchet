@@ -25,8 +25,7 @@ class Chat implements MessageComponentInterface
         $this->chat = new \common\models\WBSChat;
     }
 
-    public function onOpen(ConnectionInterface $conn)
-    {
+    public function userConnect($conn) {
         parse_str($conn->WebSocket->request->getQuery('data'), $array);
         $user = User::find()->andWhere(['guid' => $array['code']])->one();
         if (!empty($user) && $this->checkUserInConnect($this->clients, $user->id)) {
@@ -39,6 +38,19 @@ class Chat implements MessageComponentInterface
             $conn->close();
         }
     }
+
+    public function onOpen(ConnectionInterface $conn)
+    {
+        try {
+            $this->userConnect($conn);
+        } catch(\Exception $e) {
+            Yii::$app->db->close();
+            Yii::$app->db->open();
+            echo "Reconnect db connection";
+            $this->userConnect($conn);
+        }
+    }
+
 
     protected function checkUserInConnect($users, $checkId)
     {
