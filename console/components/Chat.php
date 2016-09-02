@@ -28,13 +28,13 @@ class Chat implements MessageComponentInterface
     public function userConnect($conn) {
         parse_str($conn->WebSocket->request->getQuery('data'), $array);
         $user = User::find()->andWhere(['guid' => $array['code']])->one();
-        if (!empty($user) && $this->checkUserInConnect($this->clients, $user->id)) {
+        if (!empty($user)) {
             $this->absoluteUrl = HSetting::find()->andFilterWhere(['name' => 'baseUrl'])->one()->value;
             $conn->is_chating = $user->is_chating;
             $conn->id = $user->id;
             $this->clients->attach($conn);
         } else {
-            echo 'Try connect secondary in one user';
+            echo "Not found user close connection";
             $conn->close();
         }
     }
@@ -49,18 +49,6 @@ class Chat implements MessageComponentInterface
             echo "Reconnect db connection";
             $this->userConnect($conn);
         }
-    }
-
-
-    protected function checkUserInConnect($users, $checkId)
-    {
-        foreach ($users as $user) {
-            if($user->id == $checkId) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     public function onMessage(ConnectionInterface $from, $msg)
