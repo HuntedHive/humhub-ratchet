@@ -38,5 +38,15 @@ return [
         ],
         'setCookieValidationKey' => [
         ],
+    ],
+    'Production' => [
+        'path' => 'dev',
+        'setWritable' => [
+        ],
+        'setExecutable' => [
+            'yii',
+        ],
+        'setCookieValidationKey' => [
+        ],
     ]
 ];
