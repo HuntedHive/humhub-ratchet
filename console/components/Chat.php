@@ -41,6 +41,7 @@ class Chat implements MessageComponentInterface
     protected $chat;
     protected $absoluteUrl;
     private $imageUrl;
+    private $date;
     private $imageHost;
 
     public function __construct()
@@ -55,6 +56,8 @@ class Chat implements MessageComponentInterface
         if (!empty($user)) {
             $this->absoluteUrl = HSetting::find()->andFilterWhere(['name' => 'baseUrl'])->one()->value;
             $conn->is_chating = $user->is_chating;
+            $timeZone = HSetting::find()->andFilterWhere(['name' => 'timeZone'])->one()->value;
+            $this->date = new \DateTime(null, new \DateTimeZone($timeZone));
             $conn->id = $user->id;
             $this->clients->attach($conn);
         } else {
@@ -104,7 +107,7 @@ class Chat implements MessageComponentInterface
                                                                 <i style='display:none' class='pull-right edit-icon glyphicon glyphicon-edit'></i>
                                                             </div> 
                                                             <span class='mes-time pull-right'>"
-                                                                .  date("F j, Y, g:i a", time())  .
+                                                                .  $this->date->format("F j, Y, g:i a")  .
                                                             "</span></div>".
                                                             "<div class='clearfix'></div>
                                                             <div class='col-xs-12 mes-body'>
@@ -116,7 +119,7 @@ class Chat implements MessageComponentInterface
                                                             "<span data-pk='$idMessage' class='message-default'>
                                                                 <div class='col-xs-12 col-sm-6'>
                                                                     <span class='mes-time mes-time-other pull-right'>"
-                                                                        . date("F j, Y, g:i a", time())  .
+                                                                        . $this->date->format("F j, Y, g:i a")  .
                                                                     "</span>
                                                                 </div>
                                                                 <div class='clearfix'></div>
