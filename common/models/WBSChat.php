@@ -65,14 +65,14 @@ class WBSChat extends ActiveRecord
             array(array('file','created_at', 'created_by', 'updated_at', 'updated_by'), 'safe'),
         );
     }
-    
+
     public function validateText($msg)
     {
         $msg = str_replace("/[\r\n]{2,}/i", "\r\n", $msg);
         $msg = str_replace("/[\s]+/", "", $msg);
         $msg = trim($msg);
         $msg = nl2br($msg);
-        $msg = rtrim(preg_replace('/((\<br \/>([\s]*)){2,})/', ' <br>', $msg), ' <br>');
+        $msg = strip_tags(preg_replace('/((\<br \/>([\s]*)){2,})/', ' <br>', $msg), ' <br>');
         return $msg;
     }
     
